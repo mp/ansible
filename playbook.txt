@@ -1,0 +1,17 @@
+playbook: https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html
+Uses spaces, not tabs
+---
+- hosts: [host_group]
+  remote_user: user_is_not_necessarily_root
+
+  tasks:
+    - name: Ensure a job that runs at 2 and 5 exists. Creates an entry like "0 5,2 * * ls -alh > /dev/null"
+      cron:
+        name: "check dirs"
+        minute: "0"
+        hour: “7,19”
+        job: "ls -alh > /dev/null"
+
+ansible-playbook update-cron.yaml --syntax-check
+ansible-playbook update-cron.yaml --list-hosts (test without action, optional)
+ansible-playbook update-cron.yaml

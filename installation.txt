@@ -1,0 +1,35 @@
+Do not install Ansible on a non-Lin machine. Attempting to install it on a local MacBook is no end of hassle as Pip does not install the config files (these all need to be downloaded from Github).
+
+Best to install it on a AWS node-0 and command the other nodes. Same for any system (with node-0 being the Management / controller), rather than a local VM or laptop. It makes it easier to configure SSH keys and keys the environment together.
+
+Installing ansible on MacOSX gave too much hassle as Pip does not install config files…Decided to run Ansible from AWS instance server 0 to server 1.
+
+Background information
+
+		~/.ssh/authorized_keys: Holds a list of authorized public keys for servers. When the client connects to a server, the server authenticates the client by checking its signed public key stored within this file
+		~/.ssh/known_hosts: Contains DSA host keys of SSH servers accessed by the user. This file is very important for ensuring that the SSH client is connecting the correct SSH server.
+
+ssh-add temporarily adds your own private key to memory (it is not stored in a permanent file). Only public keys for other servers go into authorized_keys (your own public key is uploaded to other servers).
+ssh-add doesn't store anything locally or remotely on disk. This command loads your private key, asking once for its password, into the SSH Agent that was previously started. The SSH Agent holds the private keys in memory only.
+
+How to set up ~/.ssh/id_ra: https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys-on-ubuntu-1604
+Public keys are usually identified by .pub extension (not guaranteed) E.g. id_rsa (private key), id_rsa.pub. 
+Decided to authenticate AWS with local .pem (private key) file rather than usual process of creating local ~/.ssh/id_rsa private key (and adding id_rsa.pub content to remote authorised_keys file).
+.pem files can contain public or private keys - I put my amazon AWS private key into a pem file (dynatrace.pem).
+
+Went through Ansible getting started guide: https://docs.ansible.com/ansible/latest/user_guide/intro_getting_started.html (video was no good).
+Added second AWS server (DNS hostname in AWS control panel).
+When running commands, you can specify the local server by adding:
+localhost ansible_connection=local ansible_python_interpreter="/usr/bin/env python"
+  in /etc/ansible/hosts
+Alternatively, try it on the localhost by specifying it in the commandline:
+ansible localhost -m ping -e 'ansible_python_interpreter="/usr/bin/env python"'
+
+Running Ansible on the local host: https://www.tricksofthetrades.net/2017/10/02/ansible-local-playbooks/
+
+Ran:
+
+$ ssh-agent bash
+$ ssh-add ~/.ssh/keypair.pem   https://stackoverflow.com/questions/42123317/how-to-use-a-public-keypair-pem-file-for-ansible-playbooks
+
+chmod 400 ~/.ssh/{id_rsa,keypair.pem}
